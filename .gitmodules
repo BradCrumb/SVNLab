@@ -1,3 +1,6 @@
 [submodule "Lib/cakephp"]
 	path = Lib/cakephp
 	url = https://github.com/cakephp/cakephp.git
+[submodule "app/Plugin/LessCompiler"]
+	path = app/Plugin/LessCompiler
+	url = https://github.com/BradCrumb/lesscompiler.git
