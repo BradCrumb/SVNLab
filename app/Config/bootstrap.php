@@ -72,6 +72,9 @@ Cache::config('default', array('engine' => 'File'));
  *
  */
 CakePlugin::load('LessCompiler');
+CakePlugin::load('BoostCake');
+CakePlugin::load('Subversion');
+
 
 /**
  * You can attach event listeners to the request lifecycle as Dispatcher Filter . By Default CakePHP bundles two filters:
@@ -108,3 +111,5 @@ CakeLog::config('error', array(
 	'types' => array('warning', 'error', 'critical', 'alert', 'emergency'),
 	'file' => 'error',
 ));
+
+Configure::write('Subversion.Svn.repository_root', 'svn://svn.marc-jan.nl/svnlab/');
