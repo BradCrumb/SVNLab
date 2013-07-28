@@ -2,6 +2,8 @@
 App::import('Vendor', 'php-markdown', true, array(), 'php-markdown/Michelf/Markdown.php');
 App::import('Vendor', 'php-markdown-extra', true, array(), 'php-markdown/Michelf/MarkdownExtra.php');
 
+App::import('Vendor', 'pygments_for_php', true, array(), 'pygments_for_php/pygments_for_php/pygments_for_php.inc.php');
+
 class RepositoriesController extends AppController {
 
 	public $helpers = array('Time');
@@ -56,6 +58,51 @@ class RepositoriesController extends AppController {
 	}
 
 	public function view($username, $repoName) {
+		$info = $this->__checkAndGetRepoInformation($username, $repoName);
+		$user = $info['user'];
+		$repo = $info['repo'];
+
+		$this->Svn->changeDir($user['User']['username'] . '/' . $repo['Repository']['name']);
+
+		$this->set('readme',\Michelf\MarkdownExtra::defaultTransform($this->Svn->cat('trunk/README.MD')));
+
+		$files = $this->Svn->ls('trunk/');
+
+		$keys = array_keys($files);
+		$length = count($keys);
+		for ($i = 0;$i < $length;$i++) {
+			$files[$keys[$i]]['latestLog'] = $this->Svn->log('trunk/' . $files[$keys[$i]]['name'], SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0];
+
+			$files[$keys[$i]]['path'] = str_replace('/' . $user['User']['username'] . '/' . $repo['Repository']['name'], '', $files[$keys[$i]]['latestLog']['paths'][0]['path']);
+		}
+
+		$this->set('files', $files);
+
+		$this->set('latestLog', $this->Svn->log('trunk/', SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0]);
+	}
+
+	public function blob($username, $repoName, $blobPath) {
+		$info = $this->__checkAndGetRepoInformation($username, $repoName);
+		$user = $info['user'];
+		$repo = $info['repo'];
+
+		$this->Svn->changeDir($user['User']['username'] . '/' . $repo['Repository']['name']);
+
+		$file = $this->Svn->cat($blobPath);
+
+		if ($file === false) {
+			throw new NotFoundException();
+		}
+
+		$length = strlen($blobPath);
+		if (substr(strtolower($blobPath),$length - 2) == 'mdd') {
+			$this->set('fileContent', \Michelf\MarkdownExtra::defaultTransform($file, 'markdown'));
+		} else {
+			$this->set('fileContent', pygmentize($file, 'php', 'monokai'));
+		}
+	}
+
+	private function __checkAndGetRepoInformation($username, $repoName) {
 		$user = $this->Repository->User->findByUsername($username, array('id', 'username'));
 
 		if (empty($user)) {
@@ -68,23 +115,9 @@ class RepositoriesController extends AppController {
 			throw new NotFoundException();
 		}
 
-		$this->Svn->changeDir($user['User']['username'] . '/' . $repo['Repository']['name']);
-
-		$this->set('readme',\Michelf\MarkdownExtra::defaultTransform($this->Svn->cat('trunk/README.MD')));
-
 		$this->set('repo',$repo);
 
-		$files = $this->Svn->ls('trunk/');
-
-		$keys = array_keys($files);
-		$length = count($keys);
-		for ($i = 0;$i < $length;$i++) {
-			$files[$keys[$i]]['latestLog'] = $this->Svn->log('trunk/' . $files[$keys[$i]]['name'], SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0];
-		}
-
-		$this->set('files', $files);
-
-		$this->set('latestLog', $this->Svn->log('trunk/', SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0]);
+		return array('repo' => $repo, 'user' => $user);
 	}
 
 	public function beforeFilter() {

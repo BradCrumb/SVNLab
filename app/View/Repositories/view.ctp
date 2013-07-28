@@ -27,7 +27,17 @@ if (!empty($repo['Repository']['description'])) {
 			?>
 			<tr>
 				<td class="icon"></td>
-				<td class="content"><?php echo $this->Html->link($file['name'], '#');?></td>
+				<td class="content">
+					<?php
+					$url = array(
+						'controller' => 'repositories',
+						'action' => 'blob',
+						'username' => $repo['User']['username'],
+						'repo_name' => $repo['Repository']['name'],
+					);
+
+					echo $this->Html->link($file['name'], Router::url($url) . $file['path']);?>
+				</td>
 				<td class="message"><?php echo $file['latestLog']['msg'];?></td>
 				<td class="age">
 					<?php

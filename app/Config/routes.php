@@ -28,10 +28,24 @@
  * to use (in this case, /app/View/Pages/home.ctp)...
  */
 	Router::connect('/', array('controller' => 'pages', 'action' => 'display', 'home'));
-/**
- * ...and connect the rest of 'Pages' controller's URLs.
- */
-	Router::connect('/pages/*', array('controller' => 'pages', 'action' => 'display'));
+
+	Router::connect('/:username/:repo_name/blob/**', array(
+		'controller' => 'repositories',
+		'action' => 'blob'
+	), array(
+		'pass' => array(
+			'username', 'repo_name'
+		)
+	));
+
+	Router::connect('/:username/:repo_name', array(
+		'controller' => 'repositories',
+		'action' => 'view'
+	), array(
+		'pass' => array(
+			'username', 'repo_name'
+		)
+	));
 
 /**
  * Load all plugin routes. See the CakePlugin documentation on
