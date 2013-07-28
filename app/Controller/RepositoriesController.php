@@ -4,6 +4,8 @@ App::import('Vendor', 'php-markdown-extra', true, array(), 'php-markdown/Michelf
 
 class RepositoriesController extends AppController {
 
+	public $helpers = array('Time');
+
 	public function index() {
 		$this->set('repositories', $this->Repository->find('all', array(
 			'conditions' => array(
@@ -71,6 +73,18 @@ class RepositoriesController extends AppController {
 		$this->set('readme',\Michelf\MarkdownExtra::defaultTransform($this->Svn->cat('trunk/README.MD')));
 
 		$this->set('repo',$repo);
+
+		$files = $this->Svn->ls('trunk/');
+
+		$keys = array_keys($files);
+		$length = count($keys);
+		for ($i = 0;$i < $length;$i++) {
+			$files[$keys[$i]]['latestLog'] = $this->Svn->log('trunk/' . $files[$keys[$i]]['name'], SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0];
+		}
+
+		$this->set('files', $files);
+
+		$this->set('latestLog', $this->Svn->log('trunk/', SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0]);
 	}
 
 	public function beforeFilter() {

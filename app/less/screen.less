@@ -1,9 +1,10 @@
-@import "vendor/bootstrap/bootstrap.less";
+@import "inc/bootstrap.less";
 
 .block {
 	background:#eee;
 	padding: 3px;
 	border-radius: 3px;
+	margin-bottom:20px;
 
 	.block-header {
 		#gradient .vertical(#fafafa, #eaeaea);
@@ -27,5 +28,77 @@
 	h1 {
 		border-bottom: 1px solid #ddd;
 		line-height:1.7;
+	}
+}
+
+table.files {
+	background:#f8f8f8;
+	border: 1px solid #d8d8d8;
+	border-bottom:0;
+	width:100%;
+	.box-sizing(border-box);
+
+	td {
+		padding: 7px 3px;
+	}
+
+	.message {
+		color:#888;
+		height:20px;
+		overflow:hidden;
+		padding-left:10px;
+	}
+
+	.age {
+		color:#888;
+		padding-right:10px;
+		text-align:right;
+	}
+
+	.icon {
+		color:#777;
+		padding-left:10px;
+		padding-right:2px;
+		width:17px;
+	}
+}
+
+.commit {
+	background:#e6f1f5;
+	border: 1px solid #b7c7cf;
+	border-bottom-color:#d8e6ec;
+	.border-top-left-radius(2px);
+	.border-top-right-radius(2px);
+	padding:8px 8px 0px;
+
+	.commit-title {
+		margin: 0px 0px 6px;
+	}
+
+	.commit-title, .commit-title a {
+		color: #4e575b;
+	}
+
+	.commit-meta {
+		background: #fff;
+		border-top:1px solid #d8e6ec;
+		margin-left:-8px;
+		padding:8px;
+		width:100%;
+	}
+
+	.authorship {
+		font-size:12px;
+		color: #999;
+		margin:-2px 0px -4px -4px;
+
+		.author-name {
+			color:#444;
+		}
+
+		a {
+			font-weight:700;
+			color: #444;
+		}
 	}
 }
