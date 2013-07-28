@@ -7,3 +7,9 @@
 [submodule "app/Plugin/BoostCake"]
 	path = app/Plugin/BoostCake
 	url = https://github.com/slywalker/cakephp-plugin-boost_cake.git
+[submodule "app/Vendor/php-markdown"]
+	path = app/Vendor/php-markdown
+	url = https://github.com/michelf/php-markdown/
+[submodule "app/Plugin/Subversion"]
+	path = app/Plugin/Subversion
+	url = https://github.com/BradCrumb/CakeSubversion
