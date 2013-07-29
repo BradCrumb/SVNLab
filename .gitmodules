@@ -16,3 +16,6 @@
 [submodule "app/Vendor/pygments_for_php"]
 	path = app/Vendor/pygments_for_php
 	url = https://github.com/dereks/pygments_for_php
+[submodule "app/Plugin/Migrations"]
+	path = app/Plugin/Migrations
+	url = https://github.com/CakeDC/migrations
