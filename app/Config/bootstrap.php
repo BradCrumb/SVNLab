@@ -74,6 +74,7 @@ Cache::config('default', array('engine' => 'File'));
 CakePlugin::load('LessCompiler');
 CakePlugin::load('BoostCake');
 CakePlugin::load('Subversion');
+CakePlugin::load('Migrations');
 
 
 /**
