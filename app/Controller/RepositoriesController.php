@@ -2,6 +2,7 @@
 App::import('Vendor', 'php-markdown', true, array(), 'php-markdown/Michelf/Markdown.php');
 App::import('Vendor', 'php-markdown-extra', true, array(), 'php-markdown/Michelf/MarkdownExtra.php');
 
+#https://github.com/hugomaiavieira/pygments-style-github
 App::import('Vendor', 'pygments_for_php', true, array(), 'pygments_for_php/pygments_for_php/pygments_for_php.inc.php');
 
 class RepositoriesController extends AppController {
@@ -71,7 +72,7 @@ class RepositoriesController extends AppController {
 		$keys = array_keys($files);
 		$length = count($keys);
 		for ($i = 0;$i < $length;$i++) {
-			$files[$keys[$i]]['latestLog'] = $this->Svn->log('trunk/' . $files[$keys[$i]]['name'], SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0];
+			$files[$keys[$i]]['latestLog'] = $this->Svn->log('trunk/' . $files[$keys[$i]]['name'], SVN_REVISION_HEAD, SVN_REVISION_INITIAL,1)[0];
 
 			$files[$keys[$i]]['path'] = str_replace('/' . $user['User']['username'] . '/' . $repo['Repository']['name'], '', $files[$keys[$i]]['latestLog']['paths'][0]['path']);
 		}
@@ -98,7 +99,7 @@ class RepositoriesController extends AppController {
 		if (substr(strtolower($blobPath),$length - 2) == 'mdd') {
 			$this->set('fileContent', \Michelf\MarkdownExtra::defaultTransform($file, 'markdown'));
 		} else {
-			$this->set('fileContent', pygmentize($file, 'php', 'monokai'));
+			$this->set('fileContent', pygmentize($file, 'php'));
 		}
 	}
 

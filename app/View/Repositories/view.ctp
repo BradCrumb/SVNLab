@@ -16,7 +16,8 @@ if (!empty($repo['Repository']['description'])) {
 				<?php
 				echo __('%s authored %s','<span class="author-name">' . $this->Html->link($latestLog['author'], '#') . '</span>', $this->Time->timeAgoInWords($latestLog['date'], array(
 					'accuracy' => array(
-						'hour' => 'hour'
+						'hour' => 'hour',
+						'day' => 'day'
 				))));?>
 			</div>
 		</div>
@@ -36,14 +37,15 @@ if (!empty($repo['Repository']['description'])) {
 						'repo_name' => $repo['Repository']['name'],
 					);
 
-					echo $this->Html->link($file['name'], Router::url($url) . $file['path']);?>
+					echo $this->Html->link($file['name'], Router::url($url) . $file['path'] . '/');?>
 				</td>
 				<td class="message"><?php echo $file['latestLog']['msg'];?></td>
 				<td class="age">
 					<?php
 					echo $this->Time->timeAgoInWords($file['latestLog']['date'], array(
 						'accuracy' => array(
-							'hour' => 'hour'
+							'hour' => 'hour',
+							'day' => 'day'
 					)));?>
 				</td>
 			</tr>
