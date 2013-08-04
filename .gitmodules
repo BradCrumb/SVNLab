@@ -19,3 +19,6 @@
 [submodule "app/Plugin/Migrations"]
 	path = app/Plugin/Migrations
 	url = https://github.com/CakeDC/migrations
+[submodule "app/webroot/js/vendor/ZeroClipboard"]
+	path = app/webroot/js/vendor/ZeroClipboard
+	url = https://github.com/jonrohan/ZeroClipboard.git
