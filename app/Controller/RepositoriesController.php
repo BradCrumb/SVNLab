@@ -65,21 +65,27 @@ class RepositoriesController extends AppController {
 
 		$this->Svn->changeDir($user['User']['username'] . '/' . $repo['Repository']['name']);
 
-		$this->set('readme',\Michelf\MarkdownExtra::defaultTransform($this->Svn->cat('trunk/README.MD')));
-
 		$files = $this->Svn->ls('trunk/');
 
-		$keys = array_keys($files);
-		$length = count($keys);
-		for ($i = 0;$i < $length;$i++) {
-			$files[$keys[$i]]['latestLog'] = $this->Svn->log('trunk/' . $files[$keys[$i]]['name'], SVN_REVISION_HEAD, SVN_REVISION_INITIAL,1)[0];
+		if (!empty($files)) {
+			$this->set('readme',\Michelf\MarkdownExtra::defaultTransform($this->Svn->cat('trunk/README.MD')));
 
-			$files[$keys[$i]]['path'] = str_replace('/' . $user['User']['username'] . '/' . $repo['Repository']['name'], '', $files[$keys[$i]]['latestLog']['paths'][0]['path']);
+			$keys = array_keys($files);
+			$length = count($keys);
+			for ($i = 0;$i < $length;$i++) {
+				$files[$keys[$i]]['latestLog'] = $this->Svn->log('trunk/' . $files[$keys[$i]]['name'], SVN_REVISION_HEAD, SVN_REVISION_INITIAL,1)[0];
+
+				$files[$keys[$i]]['path'] = str_replace('/' . $user['User']['username'] . '/' . $repo['Repository']['name'], '', $files[$keys[$i]]['latestLog']['paths'][0]['path']);
+			}
+
+			$this->set('files', $files);
+
+			$this->set('latestLog', $this->Svn->log('trunk/', SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0]);
 		}
 
-		$this->set('files', $files);
+		$this->set('repoUrl', $this->Svn->fullRepoPath('trunk/'));
 
-		$this->set('latestLog', $this->Svn->log('trunk/', SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0]);
+		$this->set('ownRepo', $this->Auth->user('id') == $repo['User']['id']);
 	}
 
 	public function blob($username, $repoName, $blobPath) {

@@ -7,56 +7,83 @@ if (!empty($repo['Repository']['description'])) {
 	<?php
 }
 
-?>
-<div class="block">
-	<div class="commit">
-		<p class="commit-title"><?php echo $latestLog['msg'];?></p>
-		<div class="commit-meta">
-			<div class="authorship">
-				<?php
-				echo __('%s authored %s','<span class="author-name">' . $this->Html->link($latestLog['author'], '#') . '</span>', $this->Time->timeAgoInWords($latestLog['date'], array(
-					'accuracy' => array(
-						'hour' => 'hour',
-						'day' => 'day'
-				))));?>
-			</div>
-		</div>
-	</div>
-	<table class="files">
-		<?php
-		foreach ($files as $file) {
-			?>
-			<tr>
-				<td class="icon"></td>
-				<td class="content">
+if (!empty($files)) {
+	?>
+	<div class="block">
+		<div class="commit">
+			<p class="commit-title"><?php echo $latestLog['msg'];?></p>
+			<div class="commit-meta">
+				<div class="authorship">
 					<?php
-					$url = array(
-						'controller' => 'repositories',
-						'action' => 'blob',
-						'username' => $repo['User']['username'],
-						'repo_name' => $repo['Repository']['name'],
-					);
-
-					echo $this->Html->link($file['name'], Router::url($url) . $file['path'] . '/');?>
-				</td>
-				<td class="message"><?php echo $file['latestLog']['msg'];?></td>
-				<td class="age">
-					<?php
-					echo $this->Time->timeAgoInWords($file['latestLog']['date'], array(
+					echo __('%s authored %s','<span class="author-name">' . $this->Html->link($latestLog['author'], '#') . '</span>', $this->Time->timeAgoInWords($latestLog['date'], array(
 						'accuracy' => array(
 							'hour' => 'hour',
 							'day' => 'day'
-					)));?>
-				</td>
-			</tr>
+					))));?>
+				</div>
+			</div>
+		</div>
+		<table class="files">
 			<?php
-		}
-		?>
-	</table>
-</div>
+			foreach ($files as $file) {
+				?>
+				<tr>
+					<td class="icon"></td>
+					<td class="content">
+						<?php
+						$url = array(
+							'controller' => 'repositories',
+							'action' => 'blob',
+							'username' => $repo['User']['username'],
+							'repo_name' => $repo['Repository']['name'],
+						);
 
-<?php
-if ($readme) {
+						echo $this->Html->link($file['name'], Router::url($url) . $file['path'] . '/');?>
+					</td>
+					<td class="message"><?php echo $file['latestLog']['msg'];?></td>
+					<td class="age">
+						<?php
+						echo $this->Time->timeAgoInWords($file['latestLog']['date'], array(
+							'accuracy' => array(
+								'hour' => 'hour',
+								'day' => 'day'
+						)));?>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
+		</table>
+	</div>
+	<?php
+}
+elseif($ownRepo) {
+	?>
+	<div class="alert alert-warning">
+		<h4><?php echo __('Checkout your repository and do your first commit');?></h4>
+
+		<?php
+		echo $this->Form->input('repo', array(
+			'label' => false,
+			'afterInput' => '<span class="add-on clip-copy" data-clipboard-target="repo"><i class="icon icon-tags"></i></span>',
+			'value' => $repoUrl,
+			'data-clipboard-text' => $repoUrl,
+			'class' => 'js-url-field',
+			'title' => __('Copy to clipboard'),
+			'div' => 'control-group input-append',
+			'wrap-input' => 'controls'));?>
+	</div>
+	<?php
+}
+else {
+	?>
+	<div class="alert alert-info alert-center">
+		<strong><?php echo __('There is nothing to see here yet.');?></strong><br/>
+		<?php echo __('Move along now.');?>
+	</div>
+	<?php
+}
+if (isset($readme) && $readme) {
 	?>
 	<div class="block">
 		<div class="block-header">

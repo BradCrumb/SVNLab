@@ -29,6 +29,10 @@
  */
 	Router::connect('/', array('controller' => 'pages', 'action' => 'display', 'home'));
 
+	Router::connect('/signup', array('controller' => 'users', 'action' => 'signup'));
+	Router::connect('/login', array('controller' => 'users', 'action' => 'login'));
+	Router::connect('/new', array('controller' => 'repositories', 'action' => 'add'));
+
 	Router::connect('/:username/:repo_name/blob/**', array(
 		'controller' => 'repositories',
 		'action' => 'blob'

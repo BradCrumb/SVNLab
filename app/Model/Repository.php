@@ -3,8 +3,8 @@ class Repository extends AppModel {
 
 	public $validate = array(
 		'name' => array(
-			'alphaNumeric' => array(
-				'rule' => 'alphaNumeric',
+			'alphaNumericWithDash' => array(
+				'rule' => array('custom', '/[a-zA-z0-9-_]/'),
 				'message' => 'not_alpha_numeric_field_error'
 			),
 			'notEmpty' => array(
