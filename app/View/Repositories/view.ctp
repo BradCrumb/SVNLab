@@ -7,55 +7,24 @@ if (!empty($repo['Repository']['description'])) {
 	<?php
 }
 
-if (!empty($files)) {
-	?>
-	<div class="block">
-		<div class="commit">
-			<p class="commit-title"><?php echo $latestLog['msg'];?></p>
-			<div class="commit-meta">
-				<div class="authorship">
-					<?php
-					echo __('%s authored %s','<span class="author-name">' . $this->Html->link($latestLog['author'], '#') . '</span>', $this->Time->timeAgoInWords($latestLog['date'], array(
-						'accuracy' => array(
-							'hour' => 'hour',
-							'day' => 'day'
-					))));?>
-				</div>
-			</div>
-		</div>
-		<table class="files">
-			<?php
-			foreach ($files as $file) {
-				?>
-				<tr>
-					<td class="icon"></td>
-					<td class="content">
-						<?php
-						$url = array(
-							'controller' => 'repositories',
-							'action' => 'blob',
-							'username' => $repo['User']['username'],
-							'repo_name' => $repo['Repository']['name'],
-						);
+?>
+<div class="overall-summary">
+	<ul class="numbers-summary">
+		<li class="commits">
+			<?php echo $this->Html->link('<span class="num"><span class="octicon octicon-history"></span> ' . $amountOfCommits . '</span> ' . __('Commits'), '#', array('escape' => false));?>
+		</li>
+		<li>
+			<?php echo $this->Html->link('<span class="num"><span class="octicon octicon-git-branch"></span> ' . $amountOfBranches . '</span> ' . __('Branches'), '#', array('escape' => false));?>
+		</li>
+		<li>
+			<?php echo $this->Html->link('<span class="num"><span class="octicon octicon-tag"></span> ' . $amountOfTags . '</span> ' . __('Releases'), '#', array('escape' => false));?>
+		</li>
+	</ul>
+</div>
+<?php
 
-						echo $this->Html->link($file['name'], Router::url($url) . $file['path'] . '/');?>
-					</td>
-					<td class="message"><?php echo $file['latestLog']['msg'];?></td>
-					<td class="age">
-						<?php
-						echo $this->Time->timeAgoInWords($file['latestLog']['date'], array(
-							'accuracy' => array(
-								'hour' => 'hour',
-								'day' => 'day'
-						)));?>
-					</td>
-				</tr>
-				<?php
-			}
-			?>
-		</table>
-	</div>
-	<?php
+if (!empty($files)) {
+	echo $this->element('tree', array('files' => $files, 'latestLog' => $latestLog));
 }
 elseif($ownRepo) {
 	?>

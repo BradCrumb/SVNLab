@@ -42,6 +42,15 @@
 		)
 	));
 
+	Router::connect('/:username/:repo_name/tree/**', array(
+		'controller' => 'repositories',
+		'action' => 'tree'
+	), array(
+		'pass' => array(
+			'username', 'repo_name'
+		)
+	));
+
 	Router::connect('/:username/:repo_name', array(
 		'controller' => 'repositories',
 		'action' => 'view'

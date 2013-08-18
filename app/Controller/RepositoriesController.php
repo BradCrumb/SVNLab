@@ -68,7 +68,9 @@ class RepositoriesController extends AppController {
 		$files = $this->Svn->ls('trunk/');
 
 		if (!empty($files)) {
-			$this->set('readme',\Michelf\MarkdownExtra::defaultTransform($this->Svn->cat('trunk/README.MD')));
+			if ($readmeFile = $this->__hasReadme($files)) {
+				$this->set('readme',\Michelf\MarkdownExtra::defaultTransform($this->Svn->cat('trunk/' . $readmeFile)));
+			}
 
 			$keys = array_keys($files);
 			$length = count($keys);
@@ -86,6 +88,20 @@ class RepositoriesController extends AppController {
 		$this->set('repoUrl', $this->Svn->fullRepoPath('trunk/'));
 
 		$this->set('ownRepo', $this->Auth->user('id') == $repo['User']['id']);
+
+		$this->set('amountOfCommits', $this->Svn->amountOfCommits('trunk/'));
+		$this->set('amountOfBranches', $this->Svn->amountOfBranches());
+		$this->set('amountOfTags', $this->Svn->amountOfTags());
+	}
+
+	private function __hasReadme($files) {
+		foreach ($files as $file) {
+			if (strtolower($file['name']) == 'readme.md') {
+				return $file['name'];
+			}
+		}
+
+		return false;
 	}
 
 	public function blob($username, $repoName, $blobPath) {
@@ -106,6 +122,48 @@ class RepositoriesController extends AppController {
 			$this->set('fileContent', \Michelf\MarkdownExtra::defaultTransform($file, 'markdown'));
 		} else {
 			$this->set('fileContent', pygmentize($file, 'php'));
+		}
+	}
+
+	public function tree($username, $repoName, $treePath) {
+		$info = $this->__checkAndGetRepoInformation($username, $repoName);
+		$user = $info['user'];
+		$repo = $info['repo'];
+
+		$this->Svn->changeDir($user['User']['username'] . '/' . $repo['Repository']['name']);
+
+		$files = $this->Svn->ls($treePath);
+
+		if ($files === false) {
+			throw new NotFoundException();
+		}
+
+		if (!empty($files)) {
+			if ($readmeFile = $this->__hasReadme($files)) {
+				$this->set('readme',\Michelf\MarkdownExtra::defaultTransform($this->Svn->cat('trunk/' . $readmeFile)));
+			}
+
+			$keys = array_keys($files);
+			$length = count($keys);
+			for ($i = 0;$i < $length;$i++) {
+				$files[$keys[$i]]['latestLog'] = $this->Svn->log('trunk/' . $files[$keys[$i]]['name'], SVN_REVISION_HEAD, SVN_REVISION_INITIAL,1)[0];
+
+				$files[$keys[$i]]['path'] = str_replace('/' . $user['User']['username'] . '/' . $repo['Repository']['name'], '', $files[$keys[$i]]['latestLog']['paths'][0]['path']);
+			}
+
+			$this->set('files', $files);
+
+			$treeExplode = explode('/',$treePath);
+
+			if (!end($treeExplode)) {
+				array_pop($treeExplode);
+			}
+
+			array_pop($treeExplode);
+
+			$this->set('parentTree', implode('/', $treeExplode));
+
+			$this->set('latestLog', $this->Svn->log('trunk/', SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0]);
 		}
 	}
 

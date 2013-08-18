@@ -1,5 +1,37 @@
 @import "inc/bootstrap.less";
 
+@import "inc/fonts.less";
+
+.navbar-static-top {
+	margin-bottom:20px;
+}
+
+.user-links {
+	float:right;
+	list-style: none;
+	margin: 7px 0 0;
+	padding:0;
+
+	> li {
+		float:left;
+		margin-left:5px;
+		position:relative;
+
+		a {
+			color:#333;
+			display:block;
+			font-size:13px;
+			padding:5px;
+		}
+	}
+
+	.name {
+		font-weight:700;
+		line-height:16px;
+		white-space:nowrap;
+	}
+}
+
 .block {
 	background:#eee;
 	padding: 3px;
@@ -61,6 +93,10 @@ table.files {
 		padding-right:2px;
 		width:17px;
 	}
+
+	.octicon-file-directory {
+		color:#0088CC;
+	}
 }
 
 .commit {
@@ -118,4 +154,47 @@ table.files {
 
 .alert-center {
 	text-align:center;
+}
+
+.overall-summary {
+	border-radius: 3px;
+	margin-bottom: 20px;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	box-sizing: border-box;
+	height:38px;
+
+	.numbers-summary {
+		list-style:none outside;
+		margin:0;
+
+		li {
+			color:#999;
+			display:table-cell;
+			margin:0;
+			padding:0;
+			text-align:center;
+			list-style:none outside;
+			width: 1%;
+		}
+
+		a {
+			color: #999999;
+			display: block;
+			padding: 10px 0px;
+			text-decoration: none;
+		}
+
+		.num {
+			color: #000000;
+			display: inline;
+			font-size: 13px;
+			font-weight: 700;
+			padding: 0px;
+		}
+
+		.octicon {
+			color: #ccc;
+		}
+	}
 }
