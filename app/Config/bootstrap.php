@@ -113,4 +113,6 @@ CakeLog::config('error', array(
 	'file' => 'error',
 ));
 
-Configure::write('Subversion.Svn.repository_root', 'svn://svn.marc-jan.nl/svnlab/');
+Configure::write('SVNLab.user_mode', false);
+Configure::write('SVNLab.title', 'SVNLab');
+Configure::write('Subversion.Svn.repository_root', 'svn://server.lan/');

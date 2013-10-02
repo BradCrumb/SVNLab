@@ -27,38 +27,72 @@
  * its action called 'display', and we pass a param to select the view file
  * to use (in this case, /app/View/Pages/home.ctp)...
  */
-	Router::connect('/', array('controller' => 'pages', 'action' => 'display', 'home'));
+	//Router::connect('/', array('controller' => 'pages', 'action' => 'display', 'home'));
 
 	Router::connect('/signup', array('controller' => 'users', 'action' => 'signup'));
 	Router::connect('/login', array('controller' => 'users', 'action' => 'login'));
 	Router::connect('/new', array('controller' => 'repositories', 'action' => 'add'));
 
-	Router::connect('/:username/:repo_name/blob/**', array(
+	Router::connect('/', array(
 		'controller' => 'repositories',
-		'action' => 'blob'
-	), array(
-		'pass' => array(
-			'username', 'repo_name'
-		)
+		'action' => 'index'
 	));
 
-	Router::connect('/:username/:repo_name/tree/**', array(
-		'controller' => 'repositories',
-		'action' => 'tree'
-	), array(
-		'pass' => array(
-			'username', 'repo_name'
-		)
-	));
+	if (Configure::read('SVNLab.user_mode')) {
+		Router::connect('/:username/:repo_name/blob/**', array(
+			'controller' => 'repositories',
+			'action' => 'blob'
+		), array(
+			'pass' => array(
+				'repo_name', 'username'
+			)
+		));
 
-	Router::connect('/:username/:repo_name', array(
-		'controller' => 'repositories',
-		'action' => 'view'
-	), array(
-		'pass' => array(
-			'username', 'repo_name'
-		)
-	));
+		Router::connect('/:username/:repo_name/tree/**', array(
+			'controller' => 'repositories',
+			'action' => 'tree_user'
+		), array(
+			'pass' => array(
+				'username', 'repo_name'
+			)
+		));
+
+		Router::connect('/:username/:repo_name', array(
+			'controller' => 'repositories',
+			'action' => 'view'
+		), array(
+			'pass' => array(
+				'repo_name', 'username'
+			)
+		));
+	} else {
+		Router::connect('/:repo_name/blob/**', array(
+			'controller' => 'repositories',
+			'action' => 'blob'
+		), array(
+			'pass' => array(
+				'repo_name'
+			)
+		));
+
+		Router::connect('/:repo_name/tree/**', array(
+			'controller' => 'repositories',
+			'action' => 'tree'
+		), array(
+			'pass' => array(
+				'repo_name'
+			)
+		));
+
+		Router::connect('/:repo_name', array(
+			'controller' => 'repositories',
+			'action' => 'view'
+		), array(
+			'pass' => array(
+				'repo_name'
+			)
+		));
+	}
 
 /**
  * Load all plugin routes. See the CakePlugin documentation on

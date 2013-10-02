@@ -6,6 +6,35 @@
 	margin-bottom:20px;
 }
 
+.navbar .title {
+	display: block;
+	float: left;
+	font-size: 20px;
+	font-weight: 200;
+	margin-left: -20px;
+	padding: 10px 20px;
+	color: #777777;
+}
+
+.top-nav {
+	list-style: none;
+	margin: 7px 0 0;
+	padding:0;
+	float:left;
+
+	li {
+		float:left;
+	}
+
+	> li > a {
+		color: #333333;
+		display: block;
+		font-size: 13px;
+		font-weight: 700;
+		padding: 5px;
+	}
+}
+
 .user-links {
 	float:right;
 	list-style: none;
@@ -85,6 +114,7 @@ table.files {
 		color:#888;
 		padding-right:10px;
 		text-align:right;
+		width:100px;
 	}
 
 	.icon {
@@ -196,5 +226,49 @@ table.files {
 		.octicon {
 			color: #ccc;
 		}
+	}
+}
+
+.repolist {
+	padding-top:10px;
+	list-style:none;
+	margin-left:0;
+
+	& > li {
+		border-bottom: 1px solid #EEEEEE;
+		margin: 0px 0px 20px;
+		min-height: 66px;
+		padding-bottom: 20px;
+		padding-left: 35px;
+		position: relative;
+	}
+
+	.repolist-name {
+		font-size: 20px;
+		line-height: 32px;
+		margin-bottom: 0px;
+		margin-top: 0px;
+		white-space: nowrap;
+	}
+
+	.updated-at {
+		color: #999999;
+		font-size: 11px;
+		margin: 0px;
+	}
+}
+
+.search-form {
+	margin-top:30px;
+
+	input[type=text] {
+		float:left;
+	}
+
+	.btn {
+		display:block;
+		float:left;
+		margin-top:2px;
+		margin-left:10px;
 	}
 }

@@ -42,14 +42,26 @@ $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework
 		<div class="navbar-inner">
 			<div class="container">
 				<?php
-				if ($this->Session->read('Auth.User.id')) { ?>
-					<ul class="user-links">
+				echo $this->Html->link(Configure::read('SVNLab.title'), '/', array('class' => 'title'));
+
+				?>
+				<ul class="top-nav">
+					<li><?php echo $this->Html->link(__('Repositories'), array('controller' => 'repositories', 'action' => 'index'), array('class' => 'name'));?></li>
+				</ul>
+
+				<ul class="user-links">
+					<?php
+					if ($this->Session->read('Auth.User.id')) { ?>
 						<li><?php echo $this->Html->link($this->Session->read('Auth.User.username'), '#', array('class' => 'name'));?></li>
 						<li><?php echo $this->Html->link('<span class="octicon octicon-repo-create"></span>', array('controller' => 'repositories', 'action' => 'add'), array('escape' => false));?></li>
 						<li><?php echo $this->Html->link('<span class="octicon octicon-log-out"></span>', array('controller' => 'users', 'action' => 'logout'), array('escape' => false));?></li>
-					</ul>
-					<?php
-				}?>
+						<?php
+					} else {
+						?>
+						<li><?php echo $this->Html->link(__('Login'), array('controller' => 'users', 'action' => 'login'), array('class' => 'name'));?></li>
+						<?php
+					}?>
+				</ul>
 			</div>
 		</div>
 	</div>

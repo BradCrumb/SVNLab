@@ -10,11 +10,20 @@ class RepositoriesController extends AppController {
 	public $helpers = array('Time');
 
 	public function index() {
-		$this->set('repositories', $this->Repository->find('all', array(
-			'conditions' => array(
-				'active' => 1
-			)
-		)));
+		$conditions = array('active' => 1);
+
+		if ($this->request->is('post') && isset($this->request->data['Repository']['search'])) {
+			$conditions['OR'] = array(
+				'name LIKE' => '%' . $this->request->data['Repository']['search'] . '%',
+				'description LIKE' => '%' . $this->request->data['Repository']['search'] . '%',
+			);
+		}
+
+		$repositories = $this->Repository->find('all', array(
+			'conditions' => $conditions
+		));
+
+		$this->set('repositories', $repositories);
 	}
 
 	public function add() {
@@ -26,7 +35,7 @@ class RepositoriesController extends AppController {
 
 				$this->request->data['Repository']['user_id'] = $this->Auth->user('id');
 				if ($this->Repository->save($this->request->data)) {
-					$return = $this->Svn->mkdir($this->request->data['Repository']['name'], "Created repository '{$this->request->data['Repository']['name']}'");
+					/*$return = $this->Svn->mkdir($this->request->data['Repository']['name'], "Created repository '{$this->request->data['Repository']['name']}'");
 
 					if ($return) {
 						$this->Svn->initStructure($this->request->data['Repository']['name']);
@@ -39,7 +48,10 @@ class RepositoriesController extends AppController {
 						$this->Repository->commit();
 
 						$this->redirect(array('action' => 'index'));
-					}
+					}*/
+					$this->Repository->commit();
+
+					$this->redirect(array('action' => 'index'));
 				} else {
 					throw new CakeException(__('svn_create_repo_error_message'));
 				}
@@ -58,12 +70,16 @@ class RepositoriesController extends AppController {
 		}
 	}
 
-	public function view($username, $repoName) {
+	public function view($repoName, $username = null) {
 		$info = $this->__checkAndGetRepoInformation($username, $repoName);
 		$user = $info['user'];
 		$repo = $info['repo'];
 
-		$this->Svn->changeDir($user['User']['username'] . '/' . $repo['Repository']['name']);
+		if (Configure::read('SVNLab.user_mode')) {
+			$this->Svn->changeDir($user['User']['username'] . '/' . $repo['Repository']['name']);
+		} else {
+			$this->Svn->changeDir($repo['Repository']['name']);
+		}
 
 		$files = $this->Svn->ls('trunk/');
 
@@ -77,12 +93,28 @@ class RepositoriesController extends AppController {
 			for ($i = 0;$i < $length;$i++) {
 				$files[$keys[$i]]['latestLog'] = $this->Svn->log('trunk/' . $files[$keys[$i]]['name'], SVN_REVISION_HEAD, SVN_REVISION_INITIAL,1)[0];
 
-				$files[$keys[$i]]['path'] = str_replace('/' . $user['User']['username'] . '/' . $repo['Repository']['name'], '', $files[$keys[$i]]['latestLog']['paths'][0]['path']);
+				$path = '/' . $repo['Repository']['name'];
+
+				if (Configure::read('SVNLab.user_mode')) {
+					$path = '/' . $user['User']['username'] . $path;
+				}
+
+				//$files[$keys[$i]]['path'] = str_replace($path, '', $files[$keys[$i]]['latestLog']['paths'][0]['path']);
+				$files[$keys[$i]]['path'] = '/trunk/' . $files[$keys[$i]]['name'];
 			}
 
 			$this->set('files', $files);
 
-			$this->set('latestLog', $this->Svn->log('trunk/', SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0]);
+			$latestLog = $this->Svn->log('trunk/', SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0];
+
+			$time = strtotime($latestLog['date']);
+
+			if ($time > $repo['Repository']['latest_update']) {
+				$this->Repository->id = $repo['Repository']['id'];
+				$this->Repository->saveField('latest_update', $time);
+			}
+
+			$this->set('latestLog', $latestLog);
 		}
 
 		$this->set('repoUrl', $this->Svn->fullRepoPath('trunk/'));
@@ -104,12 +136,23 @@ class RepositoriesController extends AppController {
 		return false;
 	}
 
-	public function blob($username, $repoName, $blobPath) {
+	public function blob_user($username, $repoName, $blobPath) {
 		$info = $this->__checkAndGetRepoInformation($username, $repoName);
 		$user = $info['user'];
 		$repo = $info['repo'];
 
-		$this->Svn->changeDir($user['User']['username'] . '/' . $repo['Repository']['name']);
+		$this->set('blobPath', $blobPath);
+
+		if (Configure::read('SVNLab.user_mode')) {
+			$this->Svn->changeDir($user['User']['username'] . '/' . $repo['Repository']['name']);
+		} else {
+			$this->Svn->changeDir($repo['Repository']['name']);
+		}
+
+		$length = strlen($blobPath);
+		if ($blobPath[$length - 1] == '/') {
+			$blobPath = substr($blobPath, 0, $length - 1);
+		}
 
 		$file = $this->Svn->cat($blobPath);
 
@@ -123,14 +166,36 @@ class RepositoriesController extends AppController {
 		} else {
 			$this->set('fileContent', pygmentize($file, 'php'));
 		}
+
+		$blobExplode = explode('/',$blobPath);
+
+		if (!end($blobExplode)) {
+			array_pop($blobExplode);
+		}
+
+		array_pop($blobExplode);
+
+		$this->set('parentTree', implode('/', $blobExplode));
+
+		$this->render('blob');
 	}
 
-	public function tree($username, $repoName, $treePath) {
+	public function blob($repoName, $blobPath) {
+		$this->blob_user(null, $repoName, $blobPath);
+	}
+
+	public function tree_user($username, $repoName, $treePath) {
 		$info = $this->__checkAndGetRepoInformation($username, $repoName);
 		$user = $info['user'];
 		$repo = $info['repo'];
 
-		$this->Svn->changeDir($user['User']['username'] . '/' . $repo['Repository']['name']);
+		$this->set('treePath', $treePath);
+
+		if (Configure::read('SVNLab.user_mode')) {
+			$this->Svn->changeDir($user['User']['username'] . '/' . $repo['Repository']['name']);
+		} else {
+			$this->Svn->changeDir($repo['Repository']['name']);
+		}
 
 		$files = $this->Svn->ls($treePath);
 
@@ -146,9 +211,16 @@ class RepositoriesController extends AppController {
 			$keys = array_keys($files);
 			$length = count($keys);
 			for ($i = 0;$i < $length;$i++) {
-				$files[$keys[$i]]['latestLog'] = $this->Svn->log('trunk/' . $files[$keys[$i]]['name'], SVN_REVISION_HEAD, SVN_REVISION_INITIAL,1)[0];
+				$files[$keys[$i]]['latestLog'] = $this->Svn->log($treePath . $files[$keys[$i]]['name'], SVN_REVISION_HEAD, SVN_REVISION_INITIAL,1)[0];
 
-				$files[$keys[$i]]['path'] = str_replace('/' . $user['User']['username'] . '/' . $repo['Repository']['name'], '', $files[$keys[$i]]['latestLog']['paths'][0]['path']);
+				$path = '/' . $repo['Repository']['name'];
+
+				if (Configure::read('SVNLab.user_mode')) {
+					$path = '/' . $user['User']['username'] . $path;
+				}
+
+				//$files[$keys[$i]]['path'] = str_replace($path, '', $files[$keys[$i]]['latestLog']['paths'][0]['path']);
+				$files[$keys[$i]]['path'] = '/' . $treePath . $files[$keys[$i]]['name'];
 			}
 
 			$this->set('files', $files);
@@ -165,16 +237,28 @@ class RepositoriesController extends AppController {
 
 			$this->set('latestLog', $this->Svn->log('trunk/', SVN_REVISION_HEAD, SVN_REVISION_HEAD)[0]);
 		}
+
+		$this->render('tree');
+	}
+
+	public function tree($repoName, $treePath) {
+		$this->tree_user(null, $repoName, $treePath);
 	}
 
 	private function __checkAndGetRepoInformation($username, $repoName) {
 		$user = $this->Repository->User->findByUsername($username, array('id', 'username'));
 
-		if (empty($user)) {
+		if (empty($user) && Configure::read('SVNLab.user_mode')) {
 			throw new NotFoundException();
 		}
 
-		$repo = $this->Repository->find('first', array('conditions' => array('user_id' => $user['User']['id'], 'name' => $repoName)));
+		$conditions = array('name' => $repoName);
+
+		if (Configure::read('SVNLab.user_mode')) {
+			$conditions['user_id'] = $user['User']['id'];
+		}
+
+		$repo = $this->Repository->find('first', array('conditions' => $conditions));
 
 		if (empty($repo)) {
 			throw new NotFoundException();

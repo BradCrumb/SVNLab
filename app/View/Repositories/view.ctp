@@ -1,3 +1,6 @@
+<?php
+echo $this->Html->link(__('<< Back to repositories overview'), array('controller' => 'repositories', 'action' => 'index'));?>
+
 <h1><?php echo $repo['User']['username'];?> / <?php echo $repo['Repository']['name'];?></h1>
 
 <?php
@@ -6,7 +9,7 @@ if (!empty($repo['Repository']['description'])) {
 	<p><?php echo $repo['Repository']['description'];?></p>
 	<?php
 }
-
+/*
 ?>
 <div class="overall-summary">
 	<ul class="numbers-summary">
@@ -22,7 +25,7 @@ if (!empty($repo['Repository']['description'])) {
 	</ul>
 </div>
 <?php
-
+*/
 if (!empty($files)) {
 	echo $this->element('tree', array('files' => $files, 'latestLog' => $latestLog));
 }
