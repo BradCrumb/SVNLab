@@ -25,7 +25,7 @@ class UsersController extends AppController {
 				$this->User->begin();
 				$this->User->create();
 				if ($this->User->save($this->request->data)) {
-					$this->Svn->changeDir('');
+					/*$this->Svn->changeDir('');
 					$return = $this->Svn->mkdir($this->request->data['User']['username'], "Created repository root for '{$this->request->data['User']['username']}'");
 
 					if ($return) {
@@ -37,7 +37,13 @@ class UsersController extends AppController {
 						$this->User->commit();
 					} else {
 						throw new CakeException(__('svn_create_repo_error_message'));
-					}
+					}*/
+					$this->Session->setFlash(__('user_save_success_message'), 'alert', array(
+							'plugin' => 'BoostCake',
+							'class' => 'alert-success'
+						), 'success');
+
+					$this->User->commit();
 				} else {
 					throw new CakeException(__('user_save_error_message'));
 				}
